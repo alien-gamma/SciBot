@@ -595,13 +595,14 @@ class GameWindow(Thread):
         if self.board.goal_group.is_ordered:
             goal = self.board.goal_group.get_current_goal()
             if self.robot.logical_position.is_equal_to(goal.logical_position):
+                goal.increment_sprite()
                 goal.has_been_met = True
                 self.board.goal_group.increment_pointer()
 
-        else:
-            for goal in self.board.goal_group.components:
-                if self.robot.logical_position.is_equal_to(goal.logical_position):
-                    goal.has_been_met = True
+            else:
+                for goal in self.board.goal_group.components:
+                    if self.robot.logical_position.is_equal_to(goal.logical_position):
+                        goal.has_been_met = True
 
         if self.board.goal_group.have_all_goals_been_met():
             # clear any remaining events
