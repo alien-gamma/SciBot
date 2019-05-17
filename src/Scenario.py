@@ -69,8 +69,14 @@ class Scenario():
 
         # prepare sprite (if any) for pickling
         if sprite is not None:
-            sprite = pygame.image.load(sprite)
-            sprite = self.format_surface_for_pickle(sprite)
+            if type(sprite)==list:
+                for i in range (0, len(sprite)):
+                    sprite[i]=pygame.image.load(sprite[i])
+                    sprite[i]=self.format_surface_for_pickle(sprite[i])
+                    
+            else:
+                sprite = pygame.image.load(sprite)
+                sprite = self.format_surface_for_pickle(sprite)
 
         # Store Goal in pickle-able format
         self._elements['GoalGroup'].append((sprite, x_coord, y_coord))
@@ -98,12 +104,24 @@ class Scenario():
 
         # For each pickled goal, unpickle and add to the temp GoalGroup
         for pickled_goal in self._get_element('GoalGroup'):
-            goal_sprite = self.format_pickle_to_surface(pickled_goal[0])
-            goal = Goal(goal_sprite,
-                        Point(pickled_goal[1], pickled_goal[2]),
-                        self._get_element('BoardStep'))
+            if type(pickled_goal[0])==list:
+                goal_sprite = []
+                for sprite in pickled_goal[0]:
+                    goal_sprite.append(self.format_pickle_to_surface(sprite))
+                    goal = Goal(goal_sprite,
+                                Point(pickled_goal[1], pickled_goal[2]),
+                                self._get_element('BoardStep'))
+
+            else:
+                goal_sprite = self.format_pickle_to_surface(pickled_goal[0])
+                goal = Goal(goal_sprite,
+                                Point(pickled_goal[1], pickled_goal[2]),
+                                self._get_element('BoardStep'))
+
             # Add unpickled goal to temp GoalGroup
             goal_group.add(goal)
+
+            
         # Return temp GoalGroup
         return goal_group
 
@@ -115,8 +133,14 @@ class Scenario():
 
         # prepare sprite (if any) for pickling
         if sprite is not None:
-            sprite = pygame.image.load(sprite)
-            sprite = self.format_surface_for_pickle(sprite)
+            if type(sprite)==list:
+                for i in range (0, len(sprite)):
+                    sprite[i]=pygame.image.load(sprite[i])
+                    sprite[i]=self.format_surface_for_pickle(sprite[i])
+
+            else:
+                sprite = pygame.image.load(sprite)
+                sprite = self.format_surface_for_pickle(sprite)
 
         # Store Obstacle in pickle-able form
         self._elements['ObstacleGroup'].append((sprite, x_coord, y_coord))
@@ -192,9 +216,11 @@ class Scenario():
         """Return an image from a pickle-able format."""
         if pickled_image is None:
             return None
-        return pygame.image.fromstring(pickled_image['image'],
-                                       pickled_image['size'],
-                                       pickled_image['format'])
+        elif type(pickled_image)==list:
+            for i in range(0, len(pickled_image)):
+                return pygame.image.fromstring(pickled_image[i]['image'], pickled_image[i]['size'], pickled_image[i]['format'])
+        else:
+            return pygame.image.fromstring(pickled_image['image'], pickled_image['size'], pickled_image['format'])
 
     @classmethod
     def format_surface_for_pickle(cls, image):
